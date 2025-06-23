@@ -523,9 +523,10 @@ async def get_orders(customer_email: Optional[str] = None):
 
 # Payment endpoints (Stripe integration)
 @api_router.post("/create-payment-intent")
-async def create_payment_intent(service_type: ServiceType):
+async def create_payment_intent(request: dict):
     """Create Stripe payment intent"""
     try:
+        service_type = ServiceType(request.get("service_type"))
         service_config = SERVICE_CONFIGS[service_type]
         
         # Create payment intent with Stripe
@@ -551,13 +552,12 @@ async def create_payment_intent(service_type: ServiceType):
         raise HTTPException(status_code=500, detail=f"Error creating payment intent: {str(e)}")
 
 @api_router.post("/confirm-payment")
-async def confirm_payment(
-    payment_intent_id: str,
-    order_request: OrderRequest,
-    background_tasks: BackgroundTasks
-):
+async def confirm_payment(request: dict, background_tasks: BackgroundTasks):
     """Confirm payment and create order"""
     try:
+        payment_intent_id = request.get("payment_intent_id")
+        order_request = OrderRequest(**request)
+        
         # Retrieve the payment intent from Stripe
         intent = stripe.PaymentIntent.retrieve(payment_intent_id)
         
