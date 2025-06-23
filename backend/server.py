@@ -318,7 +318,7 @@ async def generate_social_media_content(requirements: Dict[str, Any]) -> Dict[st
     try:
         response = await asyncio.to_thread(
             openai_client.chat.completions.create,
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a social media marketing expert with proven success in viral content creation and audience engagement."},
                 {"role": "user", "content": content_prompt}
