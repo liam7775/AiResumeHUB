@@ -25,7 +25,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # OpenAI setup
-openai.api_key = os.environ['OPENAI_API_KEY']
+openai_client = OpenAI(api_key=os.environ['OPENAI_API_KEY'])
 
 # Stripe setup
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
