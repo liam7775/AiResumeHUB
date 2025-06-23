@@ -12,6 +12,7 @@ from datetime import datetime
 from enum import Enum
 import json
 import openai
+from openai import OpenAI
 import stripe
 import asyncio
 
