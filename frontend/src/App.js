@@ -25,6 +25,49 @@ const defaultServices = [
       "3 different resume styles",
       "LinkedIn profile optimization tips"
     ]
+  },
+  {
+    service_type: "business_plan",
+    name: "Complete Business Plan",
+    description: "Comprehensive business plan with market analysis and financial projections",
+    price: 150,
+    delivery_time: "30 minutes",
+    features: [
+      "Executive summary",
+      "Market analysis",
+      "Financial projections (3 years)",
+      "Marketing strategy",
+      "Operational plan",
+      "Risk assessment"
+    ]
+  },
+  {
+    service_type: "social_media",
+    name: "Social Media Content Package",
+    description: "30-day social media content calendar with posts and captions",
+    price: 55,
+    delivery_time: "20 minutes",
+    features: [
+      "30 post ideas with captions",
+      "Hashtag research",
+      "Content calendar",
+      "Platform-specific optimization",
+      "Engagement strategies"
+    ]
+  },
+  {
+    service_type: "logo_design",
+    name: "AI Logo & Brand Package",
+    description: "Professional logo designs with brand guidelines",
+    price: 85,
+    delivery_time: "25 minutes",
+    features: [
+      "5 unique logo concepts",
+      "Vector files (SVG, AI)",
+      "PNG files (various sizes)",
+      "Brand color palette",
+      "Typography recommendations"
+    ]
   }
 ];
 
