@@ -521,17 +521,96 @@ async def get_orders(customer_email: Optional[str] = None):
     
     return [Order(**order) for order in orders]
 
-# Payment endpoints (Stripe integration - will be activated when keys provided)
+# Payment endpoints (Stripe integration)
 @api_router.post("/create-payment-intent")
 async def create_payment_intent(service_type: ServiceType):
     """Create Stripe payment intent"""
-    # This will be implemented once Stripe keys are provided
-    service_config = SERVICE_CONFIGS[service_type]
+    try:
+        service_config = SERVICE_CONFIGS[service_type]
+        
+        # Create payment intent with Stripe
+        intent = stripe.PaymentIntent.create(
+            amount=int(service_config.price * 100),  # Convert to pence/cents
+            currency='gbp',
+            metadata={
+                'service_type': service_type,
+                'service_name': service_config.name
+            }
+        )
+        
+        return {
+            "client_secret": intent.client_secret,
+            "amount": service_config.price,
+            "currency": "gbp",
+            "service": service_config.name,
+            "payment_intent_id": intent.id
+        }
+        
+    except Exception as e:
+        logger.error(f"Error creating payment intent: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error creating payment intent: {str(e)}")
+
+@api_router.post("/confirm-payment")
+async def confirm_payment(
+    payment_intent_id: str,
+    order_request: OrderRequest,
+    background_tasks: BackgroundTasks
+):
+    """Confirm payment and create order"""
+    try:
+        # Retrieve the payment intent from Stripe
+        intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+        
+        if intent.status != 'succeeded':
+            raise HTTPException(status_code=400, detail="Payment not completed")
+        
+        # Create or get customer
+        customer_data = await db.customers.find_one({"email": order_request.customer_email})
+        if not customer_data:
+            customer = Customer(
+                email=order_request.customer_email,
+                name=order_request.customer_name,
+                phone=order_request.customer_phone
+            )
+            await db.customers.insert_one(customer.dict())
+            customer_id = customer.id
+        else:
+            customer_id = customer_data["id"]
+        
+        # Get service price
+        service_config = SERVICE_CONFIGS[order_request.service_type]
+        
+        # Create order with payment confirmation
+        order = Order(
+            customer_id=customer_id,
+            service_type=order_request.service_type,
+            requirements=order_request.requirements,
+            price=service_config.price,
+            payment_intent_id=payment_intent_id,
+            status=OrderStatus.PENDING
+        )
+        
+        # Save order to database
+        await db.orders.insert_one(order.dict())
+        
+        # Start background processing
+        background_tasks.add_task(process_order, order.id)
+        
+        logger.info(f"Order {order.id} created and paid for {order_request.customer_email}")
+        return order
+        
+    except stripe.error.StripeError as e:
+        logger.error(f"Stripe error: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Payment error: {str(e)}")
+    except Exception as e:
+        logger.error(f"Error confirming payment: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing payment: {str(e)}")
+
+@api_router.get("/stripe-config")
+async def get_stripe_config():
+    """Get Stripe publishable key for frontend"""
     return {
-        "client_secret": "placeholder_for_stripe_integration",
-        "amount": service_config.price,
-        "currency": "gbp",
-        "service": service_config.name
+        "publishable_key": os.environ.get('STRIPE_PUBLISHABLE_KEY')
     }
 
 # Include the router in the main app
