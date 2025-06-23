@@ -201,10 +201,47 @@ class AIServicePlatformTester:
         success, services_data = self.test_get_services()
         if success:
             print(f"Found {len(services_data)} services:")
+            
+            # Expected pricing for each service
+            expected_prices = {
+                "resume": 35.0,
+                "business_plan": 150.0,
+                "social_media": 55.0,
+                "logo_design": 85.0
+            }
+            
+            # Verify all services exist with correct pricing
+            all_prices_correct = True
             for service in services_data:
-                print(f"  - {service['name']} (£{service['price']})")
-        
-        self.test_get_service_by_type()
+                service_type = service['service_type']
+                actual_price = service['price']
+                expected_price = expected_prices.get(service_type)
+                
+                price_correct = actual_price == expected_price
+                status = "✅" if price_correct else "❌"
+                
+                if not price_correct:
+                    all_prices_correct = False
+                
+                print(f"  {status} {service['name']} (£{actual_price}) - Expected: £{expected_price}")
+            
+            if all_prices_correct:
+                print("✅ All service prices are correct!")
+                self.tests_passed += 1
+            else:
+                print("❌ Some service prices are incorrect!")
+                
+        # Test individual service endpoints
+        for service_type in ["resume", "business_plan", "social_media", "logo_design"]:
+            success, service_data = self.run_test(
+                f"Get Service by Type ({service_type})",
+                "GET",
+                f"services/{service_type}",
+                200
+            )
+            
+            if success:
+                print(f"  - {service_data['name']} (£{service_data['price']})")
         
         # Payment tests
         self.test_get_stripe_config()
