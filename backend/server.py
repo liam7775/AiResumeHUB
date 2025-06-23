@@ -266,7 +266,7 @@ async def generate_business_plan(requirements: Dict[str, Any]) -> Dict[str, Any]
     
     try:
         response = await asyncio.to_thread(
-            openai.ChatCompletion.create,
+            openai_client.chat.completions.create,
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are a seasoned business consultant and MBA with expertise in creating winning business plans that secure funding."},
