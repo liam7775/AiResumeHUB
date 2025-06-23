@@ -365,7 +365,7 @@ async def generate_logo_concepts(requirements: Dict[str, Any]) -> Dict[str, Any]
     try:
         response = await asyncio.to_thread(
             openai_client.chat.completions.create,
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a senior brand designer with 15+ years of experience creating iconic logos for startups and Fortune 500 companies."},
                 {"role": "user", "content": logo_prompt}
