@@ -26,8 +26,8 @@ db = client[os.environ['DB_NAME']]
 # OpenAI setup
 openai.api_key = os.environ['OPENAI_API_KEY']
 
-# Stripe setup (will be configured when keys are provided)
-# stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', '')
+# Stripe setup
+stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 
 # Create the main app without a prefix
 app = FastAPI(title="AI Service Arbitrage Platform", version="1.0.0")
