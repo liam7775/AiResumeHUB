@@ -186,7 +186,7 @@ async def generate_resume_content(requirements: Dict[str, Any]) -> Dict[str, Any
     
     try:
         resume_response = await asyncio.to_thread(
-            openai.ChatCompletion.create,
+            openai_client.chat.completions.create,
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are an expert resume writer and career coach with 10+ years of experience helping people land their dream jobs."},
@@ -212,7 +212,7 @@ async def generate_resume_content(requirements: Dict[str, Any]) -> Dict[str, Any
         """
         
         cover_letter_response = await asyncio.to_thread(
-            openai.ChatCompletion.create,
+            openai_client.chat.completions.create,
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are an expert career coach specializing in compelling cover letters that get interviews."},
